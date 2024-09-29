@@ -1,6 +1,9 @@
 
 # PreProcPipe
+## Choose Language / 选择语言
 
+- [English](readme_en.md)
+- [简体中文](readme.md)
 ## Project Introduction
 
 PreProcPipe is a pipeline designed for medical image preprocessing, inspired by the nnUNet processing workflow (nnUNet uses tedious JSON configuration, which I want to avoid). It includes core functionalities such as loading medical images, cropping, normalization, resampling, and adjusting to target sizes. This project utilizes multiprocessing for parallel processing, supports `.nii` format medical image data, and saves the processed results as `.npz` files.

@@ -1,6 +1,9 @@
 
 # PreProcPipe
+## Choose Language / 选择语言
 
+- [English](readme_en.md)
+- [简体中文](readme.md)
 ## 项目简介
 
 PreProcPipe 是一个用于医学图像预处理的管道，主要功能包括对医学图像进行加载、裁剪、归一化、重采样以及调整目标尺寸。该项目使用多进程并行处理，支持对 `.nii` 格式的医学图像数据进行处理，并将处理后的结果以 `.npz` 格式保存。
