@@ -67,39 +67,7 @@ class SimplePreprocessor:
         # Step 2: 根据所有模态数据的非零区域计算裁剪范围
         print("Step 2: Cropping to non-zero regions...")
         # 将所有模态的非零坐标合并计算公共裁剪区域
-        nonzero_coords_all = []
-        for data in data_list:
-            nz = np.argwhere(data != 0)
-            if nz.size > 0:
-                nonzero_coords_all.append(nz)
-        if len(nonzero_coords_all) == 0:
-            # 全部为零，不裁剪
-            properties = {
-                'shape_before_cropping': [d.shape for d in data_list],
-                'shape_after_cropping': [d.shape for d in data_list],
-                'bbox': None
-            }
-        else:
-            nonzero_coords_all = np.concatenate(nonzero_coords_all, axis=0)
-            bbox_min = nonzero_coords_all.min(axis=0)
-            bbox_max = nonzero_coords_all.max(axis=0) + 1
-
-            # 对所有模态和分割进行裁剪
-            data_list = [d[bbox_min[0]:bbox_max[0],
-                        bbox_min[1]:bbox_max[1],
-                        bbox_min[2]:bbox_max[2]] for d in data_list]
-            if seg is not None:
-                seg = seg[bbox_min[0]:bbox_max[0],
-                        bbox_min[1]:bbox_max[1],
-                        bbox_min[2]:bbox_max[2]]
-
-            properties = {
-                'shape_before_cropping': [d.shape for d in data_list],
-                'shape_after_cropping': [d.shape for d in data_list],
-                'bbox': (bbox_min.tolist(), bbox_max.tolist())
-            }
-        print()
-
+        data_list, seg, properties = self.crop(data_list, seg)
         properties['original_spacing'] = spacing
 
         # Step 3: 对每个模态独立归一化
@@ -127,38 +95,67 @@ class SimplePreprocessor:
 
         print("Preprocessing completed.\n")
         return data_list, seg, spacing, properties
+        
 
-    def crop_to_nonzero(self, data, seg):
+    def crop(self, data_list, seg):
         """
-        裁剪图像和分割数据的全零区域，返回裁剪后的数据，并记录裁剪信息。
+        裁剪图像和分割数据在 Z 轴方向的全零区域，返回裁剪后的数据列表和分割数据，以及裁剪属性。
+        
+        参数：
+        - data_list: 多模态图像数据列表，每个元素为 NumPy 数组。
+        - seg: 分割数据（NumPy 数组），可以为 None。
+        
+        返回：
+        - cropped_data_list: 裁剪后的多模态图像数据列表。
+        - cropped_seg: 裁剪后的分割数据（如果 seg 为 None，则返回 None）。
+        - properties: 裁剪过程的属性信息，包括裁剪前后的形状和裁剪边界。
         """
-        nonzero_coords = np.argwhere(data != 0)
-        if nonzero_coords.size == 0:
-            return data, seg, {'shape_before_cropping': data.shape,
-                               'shape_after_cropping': data.shape,
-                               'bbox': None}
+        print("Step 2: Cropping to non-zero regions along Z-axis...")
 
-        bbox_min = nonzero_coords.min(axis=0)
-        bbox_max = nonzero_coords.max(axis=0) + 1  # 加 1 因为切片操作是排他性的
+        # 获取所有模态在 Z 轴方向的非零范围
+        nonzero_slices = []
+        for data in data_list:
+            # 沿 Z 轴求和，如果某切片全为零，则和为零
+            z_nonzero = np.any(data != 0, axis=(0, 1))
+            nonzero_slices.append(np.argwhere(z_nonzero).flatten())
 
-        # 裁剪数据
-        cropped_data = data[bbox_min[0]:bbox_max[0],
-                            bbox_min[1]:bbox_max[1],
-                            bbox_min[2]:bbox_max[2]]
+        if len(nonzero_slices) == 0:
+            # 全部为零，不裁剪
+            properties = {
+                'shape_before_cropping': [d.shape for d in data_list],
+                'shape_after_cropping': [d.shape for d in data_list],
+                'z_bbox': None
+            }
+            return data_list, seg, properties
+
+        # 计算公共 Z 轴范围
+        z_min = min(s.min() for s in nonzero_slices)
+        z_max = max(s.max() for s in nonzero_slices) + 1  # 加1表示包含该索引
+
+        print(f"Z-axis cropping range: {z_min} to {z_max}")
+
+        # 裁剪所有模态的 Z 轴范围
+        cropped_data_list = [d[:, :, z_min:z_max] for d in data_list]
+
+        # 裁剪分割数据的 Z 轴范围
+        cropped_seg = None
         if seg is not None:
-            cropped_seg = seg[bbox_min[0]:bbox_max[0],
-                              bbox_min[1]:bbox_max[1],
-                              bbox_min[2]:bbox_max[2]]
-        else:
-            cropped_seg = None
+            cropped_seg = seg[:, :, z_min:z_max]
 
+        # 记录裁剪属性
         properties = {
-            'shape_before_cropping': data.shape,
-            'shape_after_cropping': cropped_data.shape,
-            'bbox': (bbox_min.tolist(), bbox_max.tolist())
+            'shape_before_cropping': [d.shape for d in data_list],
+            'shape_after_cropping': [d.shape for d in cropped_data_list],
+            'z_bbox': (z_min, z_max)
         }
 
-        return cropped_data, cropped_seg, properties
+        print(f"Shapes before cropping: {[d.shape for d in data_list]}")
+        print(f"Shapes after cropping: {[d.shape for d in cropped_data_list]}")
+        if seg is not None:
+            print(f"Segmentation shape after cropping: {cropped_seg.shape}")
+
+        return cropped_data_list, cropped_seg, properties
+
 
     def _normalize(self, data, seg=None):
         """
@@ -199,6 +196,7 @@ class SimplePreprocessor:
         根据原始分辨率和目标分辨率计算新的形状。
         """
         resize_factor = [old_spacing[i] / new_spacing[i] for i in range(len(old_spacing))]
+        print(f"Computed resize factors: {resize_factor}")
         new_shape = [int(np.round(old_shape[i] * resize_factor[i])) for i in range(len(old_shape))]
         print(f"Computed new shape: {new_shape}")
         return new_shape
