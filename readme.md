@@ -1,5 +1,10 @@
 # PreProcPipe 用于CT/MRI的、适用于多模态影像的预处理流程方法
 
+## Choose Language / 选择语言
+
+- [English](readme_en.md)
+- [简体中文](readme.md)
+
 ## 1. PreProcPipe 项目结构说明
 
 该项目以 BraTS2021 数据集的预处理为例子，主要文件和目录结构如下：

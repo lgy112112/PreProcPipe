@@ -1,134 +1,269 @@
 
-# PreProcPipe
+# PreProcPipe: A Multi-Modal Image Preprocessing Pipeline for CT/MRI
+
 ## Choose Language / 选择语言
 
 - [English](readme_en.md)
 - [简体中文](readme.md)
-## Project Introduction
 
-PreProcPipe is a pipeline designed for medical image preprocessing, inspired by the nnUNet processing workflow (nnUNet uses tedious JSON configuration, which I want to avoid). It includes core functionalities such as loading medical images, cropping, normalization, resampling, and adjusting to target sizes. This project utilizes multiprocessing for parallel processing, supports `.nii` format medical image data, and saves the processed results as `.npz` files.
+## 1. PreProcPipe Project Structure
 
-## Main Features
+This project demonstrates a preprocessing pipeline using the BraTS2021 dataset as an example. The main files and directory structure are as follows:
 
-- Read medical image data (supports `.nii` format)
-- Crop the non-zero regions of the images
-- Normalize images (supports z-score and min-max normalization)
-- Resample images to the target voxel size
-- Adjust the image and segmentation data to the target size
-- Accelerate processing through parallel execution using multiprocessing
+### Data Directory
 
-## File Structure
+`PreProcPipe/BraTS2021_Training_Data`
 
-- `pipeit.py`: The main processing script, reads the data paths from the `metadata.csv` file and processes each case using multiprocessing.
-- `pipeline.py`: Defines the `SimplePreprocessor` class, which provides the functionality for loading, preprocessing, and saving images.
+Contains the original training data for the BraTS2021 dataset. Each sample has its own folder identified by the sample's ID.
 
-## Environment Requirements
+#### Sample Directory
 
-- Python 3.6+
-- Required libraries:
-  - `numpy`
-  - `pandas`
-  - `nibabel`
-  - `tqdm`
-  - `scipy`
-  - `multiprocessing`
-  - `IPython` (for clearing output)
+- `PreProcPipe/BraTS2021_Training_Data/BraTS2021_00000/`
+  - `BraTS2021_00000_flair/`
+    - Contains the FLAIR modality file for this sample, e.g., `00000057_brain_flair.nii`.
+  - `BraTS2021_00000_seg/`
+    - Contains the segmentation file for this sample.
+  - `BraTS2021_00000_t1/`
+    - Contains the T1 modality file for this sample.
+  - `BraTS2021_00000_t1ce/`
+    - Contains the T1CE modality file for this sample.
+  - `BraTS2021_00000_t2/`
+    - Contains the T2 modality file for this sample.
 
-You can install the required dependencies using the following command:
-```bash
-pip install numpy pandas nibabel tqdm scipy ipython
-```
+#### Other Samples
 
-## How to Use
+Similar structures apply to other samples, for example:
 
-### 1. Configure `metadata.csv`
+- `PreProcPipe/BraTS2021_Training_Data/BraTS2021_00002/`
+- `PreProcPipe/BraTS2021_Training_Data/BraTS2021_00003/`
 
-First, you need to prepare a `metadata.csv` file that contains the paths of the image and segmentation files. The `metadata.csv` file should have the following format:
+### Code and Tutorials
 
-| case_id  | image_path                  | label_path                  |
-|----------|-----------------------------|-----------------------------|
-| case_001 | /path/to/image1.nii.gz       | /path/to/label1.nii.gz       |
-| case_002 | /path/to/image2.nii.gz       | /path/to/label2.nii.gz       |
+- `PreProcPipe/tutorial copy.py`
+  - Contains a detailed tutorial on using `pipeline.py` to process data, demonstrating how to load, preprocess, and save results. It's recommended to start with this tutorial.
+- `PreProcPipe/pipeline.py`
+  - The main preprocessing script that contains the logic for cropping, normalizing, and resampling BraTS2021 data.
 
-- `case_id`: Unique identifier for the case.
-- `image_path`: Path to the image file (in `.nii` format).
-- `label_path`: Path to the segmentation file (if available).
+---
 
-### 2. Run the Preprocessing
+## 2. Code Highlights
 
-To start the preprocessing pipeline, run the following command in the project directory:
+The `SimplePreprocessor` class is the core component for multi-modal image preprocessing. It handles multi-modal MRI or CT data and performs preprocessing steps like cropping, normalization, resampling, and resizing.
 
-```bash
-python pipeit.py
-```
+### Preprocessing Steps and Methods
 
-The program will automatically read the file paths from the `metadata.csv` file and process each case sequentially.
+#### 1. Initialization
 
-### 3. Processing Progress
+Configures preprocessing parameters using the `__init__` method:
 
-During preprocessing, the program will display the current case number and the total number of cases. For example:
+-   **`target_spacing`**: Specifies the target voxel size (default: `[1.0, 1.0, 1.0]`).
+-   **`normalization_scheme`**: Specifies the normalization method (`z-score` or `min-max`).
+-   **`target_size`**: Specifies the target size (e.g., `[256, 256]`), defaults to `None` (no resizing).
 
-```
-Currently processing case 1/100: case_001
-```
+#### 2. Data Loading
 
-By utilizing multiprocessing, the program speeds up processing, and the processed image data will be saved as `.npz` files in the `processed_data` directory.
+-   **`read_images(image_paths)`**: Loads multi-modal image data, returning a list of NumPy arrays and voxel spacing.
+-   **`read_seg(seg_path)`**: Loads segmentation data, returning a NumPy array.
 
-### 4. Processed Results
+#### 3. Cropping
 
-For each processed case, the program will generate the following two files and save them to the `processed_data` directory:
+-   **`crop(data_list, seg)`**:
+    -   Crops only the all-zero regions along the Z-axis.
+    -   Returns the cropped image data, segmentation data, and cropping properties (cropping range and shape changes).
 
-- `{case_id}_data.npz`: The processed image data.
-- `{case_id}_seg.npz`: The processed segmentation label data (if available).
+#### 4. Normalization
 
-## Code Explanation
+-   **`_normalize_single_modality(data)`**:
+    -   Normalizes data for a single modality.
+    -   Supports `z-score` and `min-max` normalization methods.
 
-### pipeit.py
+#### 5. Resampling
 
-This script is responsible for reading the case information from the `metadata.csv` file and using multiprocessing to process each case's data.
+-   **`compute_new_shape(old_shape, old_spacing, new_spacing)`**:
+    -   Calculates the target shape based on the original shape and voxel spacing.
+    -   Outputs the resampling factor and new shape.
+-   **`resample_data(data, new_shape, order=3)`**:
+    -   Resamples the image data to the target shape.
+    -   Uses cubic interpolation by default.
+
+#### 6. Resizing
+
+-   **`resize_to_target_size(data, target_size, order=3)`**:
+    -   Resizes image data to the specified target size (e.g., `[256, 256]`).
+    -   Keeps the Z-axis depth unchanged by default.
+
+#### 999. Run Preprocessing for a Single Sample - The Combination of Above Methods
+
+-   **`run_case(image_paths, seg_path=None)`**:
+    Executes the following steps in order:
+    1.  **Data Loading**: Loads all modal images and corresponding segmentation data.
+    2.  **Z-Axis Cropping**: Calls the `crop` method to crop only the all-zero regions in the Z-axis, keeping other dimensions.
+    3.  **Normalization**: Independently normalizes data for each modality (`_normalize_single_modality` method).
+    4.  **Resampling**: Adjusts the voxel resolution using `compute_new_shape` and `resample_data`.
+    5.  **Resizing**: Adjusts the size of the data based on target dimensions (`resize_to_target_size` method).
+    6.  **Return Results**: Outputs the cropped data, segmentation data, original resolution information, and cropping attributes.
+
+### Processing Flow Overview
+
+The `SimplePreprocessor` is designed to handle multi-modal medical imaging data with segmentation data. The functionality of each step is modularized, making it easy to extend and reuse. It supports the majority of common preprocessing needs for high-dimensional data.
+
+---
+
+## 3. How to Use
+
+`SimplePreprocessor` offers a flexible interface suitable for both multi-modal and single-modal image data preprocessing. Below are the specific instructions on how to use it:
+
+### Input Data Format
+
+#### Multi-Modal Data
+
+For multi-modal data (e.g., FLAIR, T1, T1CE, T2), the input data should be a list of file paths pointing to the `.nii` files for each modality. For example:
 
 ```python
-# Using pandas to read the CSV file
-metadata_df = pd.read_csv('metadata.csv')
-
-# Iterate over each case's data and process using multiprocessing
-for idx, row in metadata_df.iterrows():
-    process_case((idx, row))
+image_paths = [
+    "BraTS2021_00000/BraTS2021_00000_flair/00000057_brain_flair.nii",
+    "BraTS2021_00000/BraTS2021_00000_t1/00000057_brain_t1.nii",
+    "BraTS2021_00000/BraTS2021_00000_t1ce/00000057_brain_t1ce.nii",
+    "BraTS2021_00000/BraTS2021_00000_t2/00000057_brain_t2.nii"
+]
 ```
 
-The `process_case()` function performs the following tasks:
-- Load image and segmentation data
-- Create an instance of the preprocessor
-- Perform cropping, normalization, resampling, and resizing on the data
-- Save the processed data
+#### Single-Modal Data
 
-### pipeline.py
+For single-modal data, the input data only needs to contain the path to a single `.nii` file, for example:
 
-This file contains the core preprocessing class `SimplePreprocessor`, which is responsible for processing both the image and segmentation data.
+```python
+image_paths = [
+    "BraTS2021_00000/BraTS2021_00000_flair/00000057_brain_flair.nii"
+]
+```
 
-- `read_images()`: Loads the `.nii` format image files.
-- `run_case()`: Executes the preprocessing steps, including cropping, normalization, resampling, and resizing.
-- `resample_data()`: Resamples the image data to the target voxel size.
-- `resize_to_target_size()`: Adjusts the image or segmentation data to the target size.
+#### Segmentation Data
 
-## Frequently Asked Questions
+The input for segmentation data is a single file path pointing to the `.nii` format segmentation file. For example:
 
-### 1. Incorrect `metadata.csv` Format
+```python
+seg_path = "BraTS2021_00000/BraTS2021_00000_seg/00000057_seg.nii"
+```
 
-Make sure that the `case_id`, `image_path`, and `label_path` columns are correctly configured in the `metadata.csv` file. The paths should be the full file paths.
+Segmentation data is optional. If there is no segmentation data, set `seg_path` to `None`.
 
-### 2. Running Out of Memory
+---
 
-If you are processing a large amount of data, consider reducing the number of parallel processes by adjusting the `num_processes` parameter in `mp.Pool(processes=num_processes)` in `pipeit.py`.
+### How to Call the Preprocessing Method
 
-### 3. Cannot Find the Processed `.npz` Files
+#### 1. Initialize the Preprocessor
 
-Ensure that the `processed_data` directory has been created during the script execution, and the `.npz` files are being saved to the correct path.
+First, create an instance of `SimplePreprocessor`. You can specify the following parameters:
 
-## Contributions and Feedback
+-   `target_spacing`: The target voxel size (defaults to `[1.0, 1.0, 1.0]`).
+-   `normalization_scheme`: The normalization method (defaults to `"z-score"`).
+-   `target_size`: The target size (defaults to `None`, meaning no resizing).
 
-If you encounter any issues or have any suggestions during use, feel free to submit issues or provide feedback on the GitHub project's issue page.
+For example:
 
-## License
+```python
+from pipeline import SimplePreprocessor
 
-This project is licensed under the MIT License. For more details, please see the LICENSE file.
+preprocessor = SimplePreprocessor(
+    target_spacing=[1.0, 1.0, 1.0],
+    normalization_scheme="z-score",
+    target_size=[256, 256]
+)
+```
+
+---
+
+#### 2. Run Preprocessing for a Single Sample
+
+Use the `run_case` method to preprocess a single sample:
+
+```python
+# Input data
+image_paths = [
+    "BraTS2021_00000/BraTS2021_00000_flair/00000057_brain_flair.nii",
+    "BraTS2021_00000/BraTS2021_00000_t1/00000057_brain_t1.nii",
+    "BraTS2021_00000/BraTS2021_00000_t1ce/00000057_brain_t1ce.nii",
+    "BraTS2021_00000/BraTS2021_00000_t2/00000057_brain_t2.nii"
+]
+seg_path = "BraTS2021_00000/BraTS2021_00000_seg/00000057_seg.nii"
+
+# Run preprocessing
+data_list, seg, spacing, properties = preprocessor.run_case(image_paths, seg_path)
+```
+
+-   `data_list`: Preprocessed multi-modal image data (after cropping, normalization, resampling, and resizing).
+-   `seg`: Preprocessed segmentation data (if available).
+-   `spacing`: Voxel spacing information of the original image.
+-   `properties`: Attributes related to cropping and preprocessing (e.g., shapes before and after cropping, cropping boundaries).
+
+---
+
+#### 3. Run Preprocessing for a Single-Modal Sample
+
+For single-modal data, the input list contains only one file path:
+
+```python
+image_paths = [
+    "BraTS2021_00000/BraTS2021_00000_flair/00000057_brain_flair.nii"
+]
+seg_path = None  # If there is no segmentation data
+
+data_list, seg, spacing, properties = preprocessor.run_case(image_paths, seg_path)
+```
+
+In this case:
+
+-   `data_list` contains the processing results of a single modality.
+-   `seg` is `None`.
+
+---
+
+### Batch Processing Samples
+
+If you need to process multiple samples, you can store the input of each sample (`image_paths` and `seg_path`) in a list and use multi-processing tools (such as the `run_in_parallel` method).
+
+```python
+from pipeline import run_in_parallel
+
+cases = [
+    {
+        "image_paths": [
+            "BraTS2021_00000/BraTS2021_00000_flair/00000057_brain_flair.nii",
+            "BraTS2021_00000/BraTS2021_00000_t1/00000057_brain_t1.nii"
+        ],
+        "seg_path": "BraTS2021_00000/BraTS2021_00000_seg/00000057_seg.nii"
+    },
+    {
+        "image_paths": [
+            "BraTS2021_00001/BraTS2021_00001_flair/00000058_brain_flair.nii"
+        ],
+        "seg_path": None
+    }
+]
+
+# Batch processing
+results = run_in_parallel(preprocessor, cases, num_workers=4, output_root="preprocessed_data")
+```
+
+`results` returns the preprocessing results for each sample. The data will also be saved to the corresponding folders as set by the argument `output_root="preprocessed_data"`.
+
+### Output Data
+
+After processing, the return value for each sample includes:
+
+1.  **`data_list`**: A list storing the processed data for each modality.
+2.  **`seg`**: The processed segmentation data (if available).
+3.  **`spacing`**: The original voxel spacing.
+4.  **`properties`**: Records the information for cropping, normalization, and resampling, for example:
+
+    ```python
+    {
+        "shape_before_cropping": [(240, 240, 155), ...],
+        "shape_after_cropping": [(240, 240, 120), ...],
+        "z_bbox": [10, 130]
+    }
+    ```
+
+With this structured return value, you can easily save or analyze the results.
+```
