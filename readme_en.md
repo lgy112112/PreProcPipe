@@ -4,6 +4,23 @@
 ![xmp](before.png)
 ![xmp](after.png)
 
+<p align="center">
+  <a href="images/alipay-qrcode.jpg">
+    <img src="https://img.shields.io/badge/%E6%8A%95%E5%96%82%E4%B8%BB%E6%92%AD-%E5%8D%95%E5%87%BB%E6%94%AF%E6%8C%81-9cf?style=for-the-badge&logo=alipay" alt="helpmeiamsofuckinghungry">
+  </a>
+  <a href="images/alipay-qrcode.jpg">
+    <img src="https://img.shields.io/badge/%E6%8A%95%E5%96%82%E4%B8%BB%E6%92%AD-%E5%8D%95%E5%87%BB%E6%94%AF%E6%8C%81-9cf?style=for-the-badge&logo=alipay" alt="helpmeiamsofuckinghungry">
+  </a>
+  <a href="images/alipay-qrcode.jpg">
+    <img src="https://img.shields.io/badge/%E6%8A%95%E5%96%82%E4%B8%BB%E6%92%AD-%E5%8D%95%E5%87%BB%E6%94%AF%E6%8C%81-9cf?style=for-the-badge&logo=alipay" alt="helpmeiamsofuckinghungry">
+  </a>
+  <a href="images/alipay-qrcode.jpg">
+    <img src="https://img.shields.io/badge/%E6%8A%95%E5%96%82%E4%B8%BB%E6%92%AD-%E5%8D%95%E5%87%BB%E6%94%AF%E6%8C%81-9cf?style=for-the-badge&logo=alipay" alt="helpmeiamsofuckinghungry">
+  </a>
+  <a href="images/alipay-qrcode.jpg">
+    <img src="https://img.shields.io/badge/%E6%8A%95%E5%96%82%E4%B8%BB%E6%92%AD-%E5%8D%95%E5%87%BB%E6%94%AF%E6%8C%81-9cf?style=for-the-badge&logo=alipay" alt="helpmeiamsofuckinghungry">
+  </a>
+</p>
 
 ## Choose Language / 选择语言
 
