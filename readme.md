@@ -1,5 +1,8 @@
 # PreProcPipe 用于CT/MRI的、适用于多模态影像的预处理流程方法
 
+![xmp](before.png)
+![xmp](after.png)
+
 ## Choose Language / 选择语言
 
 - [English](readme_en.md)

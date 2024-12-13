@@ -1,6 +1,10 @@
 
 # PreProcPipe: A Multi-Modal Image Preprocessing Pipeline for CT/MRI
 
+![xmp](before.png)
+![xmp](after.png)
+
+
 ## Choose Language / 选择语言
 
 - [English](readme_en.md)
