@@ -1,10 +1,9 @@
 import nibabel as nib
 import numpy as np
 from scipy.ndimage import zoom
-from tqdm import tqdm  # 进度条库
-import multiprocessing as mp
 from multiprocessing import Pool
 import os
+import csv
 
 class SimplePreprocessor:
     def __init__(self, target_spacing=[1.0, 1.0, 1.0], normalization_scheme="z-score", target_size=None):
@@ -157,21 +156,21 @@ class SimplePreprocessor:
         return cropped_data_list, cropped_seg, properties
 
 
-    def _normalize(self, data, seg=None):
-        """
-        归一化图像数据。
-        """
-        if self.normalization_scheme == "z-score":
-            mean_val = np.mean(data[data > 0])
-            std_val = np.std(data[data > 0])
-            data = (data - mean_val) / (std_val + 1e-8)
-        elif self.normalization_scheme == "min-max":
-            min_val = np.min(data[data > 0])
-            max_val = np.max(data[data > 0])
-            data = (data - min_val) / (max_val - min_val + 1e-8)
-        else:
-            raise ValueError(f"Unknown normalization scheme: {self.normalization_scheme}")
-        return data
+    # def _normalize(self, data, seg=None):
+    #     """
+    #     归一化图像数据。
+    #     """
+    #     if self.normalization_scheme == "z-score":
+    #         mean_val = np.mean(data[data > 0])
+    #         std_val = np.std(data[data > 0])
+    #         data = (data - mean_val) / (std_val + 1e-8)
+    #     elif self.normalization_scheme == "min-max":
+    #         min_val = np.min(data[data > 0])
+    #         max_val = np.max(data[data > 0])
+    #         data = (data - min_val) / (max_val - min_val + 1e-8)
+    #     else:
+    #         raise ValueError(f"Unknown normalization scheme: {self.normalization_scheme}")
+    #     return data
 
     # 新增一个专门处理单个模态归一化的方法
     def _normalize_single_modality(self, data):
@@ -224,7 +223,6 @@ class SimplePreprocessor:
         print(f"Data resized to shape: {resized_data.shape}")
         return resized_data
 
-import csv
 
 def process_case(args):
     """
