@@ -26,6 +26,92 @@
 - [English](readme_en.md)
 - [简体中文](readme.md)
 
+## 0. 更新说明——你可以用 LLM 全自动获取 `metadata.csv` 了！
+
+在本次更新中，我们引入了一个全新的自动化流程，利用 **LLM（大型语言模型）** 来全自动生成医学影像数据集的 `metadata.csv` 文件。这个流程不仅简化了数据预处理步骤，还大大减少了手动操作的时间和错误率。以下是该流程的核心内容步骤：
+
+---
+
+### **1. 文件目录分析与采样**
+
+首先，我们使用 `analyze_directory` 函数对数据集的文件目录进行分析和采样。该函数会遍历数据集的根目录，识别出所有的 A 级文件夹（即样本文件夹），并随机采样一部分文件夹及其子文件夹中的文件。采样的结果会以 JSON 格式保存为 `directory_analysis.json` 文件。
+
+#### **主要功能：**
+- **文件夹结构分析**：递归遍历文件夹，生成目录树结构。
+- **随机采样**：从每个 A 级文件夹中随机采样一定数量的文件。
+- **结果保存**：将分析结果保存为 `directory_analysis.json` 文件，供后续步骤使用。
+
+#### **使用方法：**
+```python
+analyze_directory(root_directory, sample_folder_count=5, sample_file_count=10)
+```
+- `root_directory`：数据集的根目录路径。
+- `sample_folder_count`：随机采样的 A 级文件夹数量。
+- `sample_file_count`：每个采样文件夹中随机采样的文件数量。
+
+---
+
+### **2. 利用 LLM 生成 `metadata.csv` 的 Python 代码**
+
+接下来，我们使用 `generate_metadata` 函数，将 `directory_analysis.json` 文件作为输入，调用 DeepSeek API 生成构建 `metadata.csv` 的 Python 代码。LLM 会根据文件命名的规律，自动识别多模态文件和掩码文件，并生成相应的代码。
+
+#### **主要功能：**
+- **文件命名规律分析**：LLM 会分析文件命名中的规律，识别多模态文件和掩码文件。
+- **代码生成**：根据分析结果，生成 Python 代码，用于构建 `metadata.csv` 文件。
+- **结果保存**：生成的代码会保存为 `generate_metadata.py` 文件。
+
+#### **使用方法：**
+```python
+generate_metadata(root_directory, your_api_key=None)
+```
+- `root_directory`：数据集的根目录路径。
+- `your_api_key`：DeepSeek API 的密钥（你可以从[DeepSeek官网](https://platform.deepseek.com/usage)注册获取，免费并且额度很够）。
+
+---
+
+### **3. 执行生成的代码并生成 `metadata.csv`**
+
+最后，我们使用 `execute_metadata_script` 函数，执行生成的 `generate_metadata.py` 脚本，自动生成 `metadata.csv` 文件。该函数会检查生成的 CSV 文件是否正确，并打印前 5 行内容以供验证。
+
+#### **主要功能：**
+- **代码执行**：执行 `generate_metadata.py` 脚本，生成 `metadata.csv` 文件。
+- **结果验证**：检查生成的 CSV 文件是否存在，并打印前 5 行内容。
+
+#### **使用方法：**
+```python
+execute_metadata_script(root_directory)
+```
+- `root_directory`：数据集的根目录路径。
+
+---
+
+### **总结**
+
+通过这三个步骤，你可以轻松地利用 LLM 全自动生成 `metadata.csv` 文件，而无需手动编写代码或分析文件命名规律。整个流程自动化程度高，适用于各种医学影像数据集。
+
+#### **使用示例：**
+```python
+if __name__ == "__main__":
+    # 1. 分析文件目录结构
+    root_directory = "/teamspace/studios/this_studio/kaggle_3m"  # 填写数据集根目录，一定要是绝对路径
+    analyze_directory(root_directory=root_directory, sample_folder_count=5, sample_file_count=10)
+
+    # 2. 生成 metadata.csv 的 Python 代码
+    generate_metadata(root_directory=root_directory, your_api_key=None)
+
+    # 3. 执行生成的代码并检查 metadata.csv
+    execute_metadata_script(root_directory=root_directory)
+```
+
+---
+
+### **注意事项**
+- 确保数据集的文件命名具有一定的规律性，以便 LLM 能够正确识别多模态文件和掩码文件。
+- 如果数据集较大，可以通过增加 `sample_folder_count` 和 `sample_file_count` 来提高 LLM 的分析准确性。
+- 如果需要使用 DeepSeek API，请确保已获取 API 密钥，并将其填写在 `LLM_metadata.csv` 文件中。
+
+---
+
 ## 1. PreProcPipe 项目结构说明
 
 该项目以 BraTS2021 数据集的预处理为例子，主要文件和目录结构如下：
@@ -58,6 +144,12 @@
   
 - `PreProcPipe/pipeline.py`  
   - 主预处理脚本，包含用于裁剪、归一化和重采样 BraTS2021 数据的代码逻辑。
+
+- `PreProcPipe/LLM_metadata.py`  
+  - 用于借助LLM获取metadata.csv的脚本。
+
+- `PreProcPipe/How_I_Use_LLM_to_DIY_metadata.ipynb`  
+  - 我是如何通过LLM获取metadata的步骤的笔记本。
   
 ---
 
