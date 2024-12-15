@@ -1,4 +1,0 @@
-sample_id,modality_paths,seg_path,meta_path
-BraTS2021_00000,"['BraTS2021_00000/00000057_brain_t1.npz', 'BraTS2021_00000/00000057_brain_t1ce.npz', 'BraTS2021_00000/00000057_brain_t2.npz', 'BraTS2021_00000/00000057_brain_flair.npz']",BraTS2021_00000/seg.npz,BraTS2021_00000/meta.npz
-BraTS2021_00003,"['BraTS2021_00003/00000017_brain_t1.npz', 'BraTS2021_00003/00000017_brain_t1ce.npz', 'BraTS2021_00003/00000017_brain_t2.npz', 'BraTS2021_00003/00000017_brain_flair.npz']",BraTS2021_00003/seg.npz,BraTS2021_00003/meta.npz
-BraTS2021_00002,"['BraTS2021_00002/00000014_brain_t1.npz', 'BraTS2021_00002/00000014_brain_t1ce.npz', 'BraTS2021_00002/00000014_brain_t2.npz', 'BraTS2021_00002/00000014_brain_flair.npz']",BraTS2021_00002/seg.npz,BraTS2021_00002/meta.npz
