@@ -10,7 +10,6 @@ import os
 import csv
 import subprocess
 
-
 def analyze_directory(root_directory, sample_folder_count=1, sample_file_count=5):
     # 用于存储最终的结果
     result = {
@@ -80,7 +79,7 @@ def generate_metadata(root_directory, your_api_key=None):
     DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
     llm_api = None
     if your_api_key is None:
-        if os.path.exists("/teamspace/studios/this_studio/PreProcPipe/config.py"):
+        if os.path.exists(r"D:\REPO\PreProcPipe\config.py"):
             from config import API_KEY
             llm_api = API_KEY
             print("API 密钥已从 config.py 中读取。")
@@ -195,10 +194,34 @@ def execute_metadata_script(root_directory):
         else:
             print("metadata.csv 文件未生成，请检查脚本逻辑和根目录路径。")
 
+def metadata_sanity_check(root_directory):
+    metadata_file = os.path.join(root_directory, "metadata.csv")
+    
+    try:
+        with open(metadata_file, mode='r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                for key, value in row.items():
+                    if '_path' in key:
+                        if not value:
+                            print(f"空值: {key} 在 sample_id {row['sample_id']} 中为空")
+                        else:
+                            full_path = os.path.join(root_directory, value)
+                            if not os.path.exists(full_path):
+                                print(f"路径无效: {key} 在 sample_id {row['sample_id']} 中指向 {full_path}")
+                            else:
+                                # print(f"路径有效: {key} 在 sample_id {row['sample_id']} 中指向 {full_path}")
+                                pass
+    except Exception as e:
+        print(f"读取 metadata.csv 时发生错误: {e}")
+        print("看起来有错误，你可以手动查看 metadata.csv 是否正确。")
+
+    
+
 
 if __name__ == "__main__":
     # 1. 分析文件目录结构
-    root_directory = "/teamspace/studios/this_studio/kaggle_3m" # 填写数据集根目录，一定要是绝对路径
+    root_directory = r"D:\REPO\PreProcPipe\BraTS2021_Training_Data" # 填写数据集根目录，一定要是绝对路径
 
     analyze_directory(root_directory=root_directory, sample_folder_count=5, sample_file_count=10) # 可以通过增加 sample_folder_count 和 sample_file_count 来提高成功率
 
@@ -208,3 +231,8 @@ if __name__ == "__main__":
 
     # 3. 执行生成的代码并检查 metadata.csv
     execute_metadata_script(root_directory=root_directory)
+
+    # 4. 检查 metadata.csv 的正确性
+    metadata_sanity_check(root_directory=root_directory)
+
+
