@@ -26,6 +26,10 @@
 - [English](readme_en.md)
 - [简体中文](readme.md)
 
+## -1. `2024/12/18` 更新说明——增加了`pipeline_example.py`. 
+在本次更新中，新增的`pipeline_example.py`用于演示如何利用从`LLM_metadata.py`获取的`metadata.csv`，使用`pipeline.py`进行数据预处理。
+虽然最后有一个小bug，但不妨碍使用。
+
 ## 0. 更新说明——你可以用 LLM 全自动获取 `metadata.csv` 了！
 
 在本次更新中，我们引入了一个全新的自动化流程，利用 **LLM（大型语言模型）** 来全自动生成医学影像数据集的 `metadata.csv` 文件。这个流程不仅简化了数据预处理步骤，还大大减少了手动操作的时间和错误率。以下是该流程的核心内容步骤：
