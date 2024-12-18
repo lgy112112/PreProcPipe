@@ -135,10 +135,10 @@ def generate_metadata(root_directory, your_api_key=None):
             model_output = result["choices"][0]["message"]["content"]
             print(model_output)
 
-            # 保存 LLM 输出到 result.json
-            with open("result.json", "w") as f:
-                f.write(model_output)
-            print("LLM 的响应内容已保存到 result.json 文件中。")
+            # 你可以保存 LLM 输出到 result.json
+            # with open("result.json", "w") as f:
+            #     f.write(model_output)
+            # print("LLM 的响应内容已保存到 result.json 文件中。")
 
             # 尝试从 LLM 的输出中提取生成的代码
             code_match = re.search(r"```python(.*?)```", model_output, re.DOTALL)
