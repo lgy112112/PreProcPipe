@@ -236,6 +236,9 @@ def process_case(args):
     data_list, seg, spacing, properties = preprocessor.run_case(image_paths, seg_path)
 
     # 创建样本目录（在output_root下）
+    # 检查sample_id的类型
+    if isinstance(sample_id, int):
+        sample_id = str(sample_id)
     sample_dir = os.path.join(output_root, sample_id)
     os.makedirs(sample_dir, exist_ok=True)
 

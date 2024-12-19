@@ -1,3 +1,4 @@
 config.py
 BraTS2021_Training_Data
 result.json
+preprocessed_data

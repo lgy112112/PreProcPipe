@@ -45,7 +45,7 @@ if __name__ == "__main__":
     )
 
     cases = load_cases_from_metadata(r"D:\REPO\PreProcPipe\BraTS2021_Training_Data\metadata.csv")
-    results = run_in_parallel(example_preprocessor, cases, num_workers=4, output_root="preprocessed_data")
+    results = run_in_parallel(example_preprocessor, cases, num_workers=8, output_root="preprocessed_data")
 
-#TODO: TypeError: join() argument must be str, bytes, or os.PathLike object, not 'int'
+
 
