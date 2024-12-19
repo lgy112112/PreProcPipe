@@ -26,6 +26,8 @@
 - [English](readme_en.md)
 - [简体中文](readme.md)
 
+## -2. `2024/12/19` 更新说明——修复了`pipeline.py`的一个bug，这个bug导致无法识别int类型的sample_id，导致无法保存文件。
+
 ## -1. `2024/12/18` 更新说明——增加了`pipeline_example.py`. 
 在本次更新中，新增的`pipeline_example.py`用于演示如何利用从`LLM_metadata.py`获取的`metadata.csv`，使用`pipeline.py`进行数据预处理。
 虽然最后有一个小bug，但不妨碍使用。
