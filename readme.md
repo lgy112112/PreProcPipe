@@ -321,6 +321,30 @@ generate_metadata(root_dir, api_key)
 execute_metadata_script(root_dir)
 ```
 
+## Jupyter Notebook 教程
+
+项目提供两个详细的Jupyter Notebook教程：
+
+### 1. tutorial.ipynb
+
+这是项目的主要教程，包含：
+- 完整的预处理管道使用示例
+- 各个参数的详细说明
+- 常见使用场景的演示
+- 处理结果的可视化
+
+推荐新用户首先阅读此教程，它将帮助你快速上手预处理管道的使用。
+
+### 2. How_I_Use_LLM_to_DIY_metadata.ipynb
+
+这是关于如何使用LLM生成元数据的详细教程，包含：
+- LLM元数据生成的完整工作流程
+- DeepSeek API的配置和使用
+- 目录结构分析的实际案例
+- 常见问题的解决方案
+
+如果你需要使用元数据自动生成功能，建议详细阅读此教程。
+
 ## 注意事项
 
 1. 确保输入数据格式正确（支持.nii格式）

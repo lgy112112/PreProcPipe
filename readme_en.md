@@ -321,6 +321,30 @@ generate_metadata(root_dir, api_key)
 execute_metadata_script(root_dir)
 ```
 
+## Jupyter Notebook Tutorials
+
+The project provides two detailed Jupyter Notebook tutorials:
+
+### 1. tutorial.ipynb
+
+This is the main tutorial of the project, including:
+- Complete preprocessing pipeline usage examples
+- Detailed parameter explanations
+- Common use case demonstrations
+- Visualization of processing results
+
+New users are recommended to read this tutorial first, as it will help you quickly get started with the preprocessing pipeline.
+
+### 2. How_I_Use_LLM_to_DIY_metadata.ipynb
+
+This is a detailed tutorial on how to use LLM for metadata generation, including:
+- Complete workflow of LLM metadata generation
+- DeepSeek API configuration and usage
+- Real cases of directory structure analysis
+- Solutions to common issues
+
+If you need to use the automatic metadata generation feature, it is recommended to read this tutorial thoroughly.
+
 ## Important Notes
 
 1. Ensure correct input data format (supports .nii format)
